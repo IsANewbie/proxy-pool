@@ -27,9 +27,12 @@ public class ProxyIp implements Serializable {
     private long id;
     private String ip;
     private int port;
+    @JSONField(serialize = false)
     private String country;//国家
+    @JSONField(serialize = false)
     private String location;//位置
     private String type;//类型 https http
+    @JSONField(serialize = false)
     private String anonymity;//匿名性
     @Column(name="available" ,nullable=false)
     private boolean available;

@@ -31,21 +31,32 @@ public class CrawlerJob implements Runnable {
         try{
             ConcurrentLinkedQueue<ProxyIp> proxyIpQueue = new ConcurrentLinkedQueue<>();
             //生产者
-            //schedulerJobExecutor.execute(new XicidailiCrawlerJob(proxyIpQueue, "http://www.xicidaili.com/nn"), 0, 100, TimeUnit.SECONDS);
+            schedulerJobExecutor.execute(new XicidailiCrawlerJob(proxyIpQueue, "https://www.xicidaili.com/nn/#", 5), 0, 60, TimeUnit.SECONDS);
+            schedulerJobExecutor.execute(new XicidailiCrawlerJob(proxyIpQueue, "https://www.xicidaili.com/nt/#", 5), 30, 120, TimeUnit.SECONDS);
+            schedulerJobExecutor.execute(new XicidailiCrawlerJob(proxyIpQueue, "https://www.xicidaili.com/wn/#", 5), 40, 180, TimeUnit.SECONDS);
+            schedulerJobExecutor.execute(new XicidailiCrawlerJob(proxyIpQueue, "https://www.xicidaili.com/wt/#", 5), 50, 240, TimeUnit.SECONDS);
 
-            //schedulerJobExecutor.execute(new Data5uCrawlerJob(proxyIpQueue, "http://www.data5u.com/free/index.shtml"), 10, 100, TimeUnit.SECONDS);
+            schedulerJobExecutor.execute(new Data5uCrawlerJob(proxyIpQueue, "http://www.data5u.com/"), 0, 120, TimeUnit.SECONDS);
 
-            schedulerJobExecutor.execute(new FreeProxyListCrawlerJob(proxyIpQueue, "https://free-proxy-list.net"), 20, 100, TimeUnit.SECONDS);
+            schedulerJobExecutor.execute(new QuanWangCrawlerJob(proxyIpQueue, "http://www.goubanjia.com/"), 30, 120, TimeUnit.SECONDS);
 
-            schedulerJobExecutor.execute(new MyProxyCrawlerJob(proxyIpQueue, "https://www.my-proxy.com/free-proxy-list.html"), 30, 100, TimeUnit.SECONDS);
+            schedulerJobExecutor.execute(new KuaidailiCrawlerJob(proxyIpQueue, "https://www.kuaidaili.com/free/inha/#/",5), 60, 120, TimeUnit.SECONDS);
+            schedulerJobExecutor.execute(new KuaidailiCrawlerJob(proxyIpQueue, "https://www.kuaidaili.com/free/intr/#/", 5), 60, 120, TimeUnit.SECONDS);
 
-            //schedulerJobExecutor.execute(new SpysOneCrawlerJob(proxyIpQueue, "http://spys.one/en/free-proxy-list/"), 40, 100, TimeUnit.SECONDS);
+            schedulerJobExecutor.execute(new IPHaiCrawlerJob(proxyIpQueue, "http://www.iphai.com/"), 0, 100, TimeUnit.SECONDS);
 
-            schedulerJobExecutor.execute(new ProxynovaCrawlerJob(proxyIpQueue, "https://www.proxynova.com/proxy-server-list/"), 50, 100, TimeUnit.SECONDS);
+            schedulerJobExecutor.execute(new IP366CrawlerJob(proxyIpQueue, "http://www.ip3366.net/?stype=1&page=#", 5), 50, 100, TimeUnit.SECONDS);
 
-            schedulerJobExecutor.execute(new Proxy4FreeCrawlerJob(proxyIpQueue, "https://www.proxy4free.com/list/webproxy1.html"), 60, 100, TimeUnit.SECONDS);
+            schedulerJobExecutor.execute(new GaoKeYongCrawlerJob(proxyIpQueue, "http://ip.jiangxianli.com/?page=#", 5), 0, 100, TimeUnit.SECONDS);
 
-            schedulerJobExecutor.execute(new GatherproxyCrawlerJob(proxyIpQueue, "http://www.gatherproxy.com/"), 70, 100, TimeUnit.SECONDS);
+            // Not available in China mainland
+//            schedulerJobExecutor.execute(new FreeProxyListCrawlerJob(proxyIpQueue, "https://free-proxy-list.net"), 20, 100, TimeUnit.SECONDS);
+//            schedulerJobExecutor.execute(new SpysOneCrawlerJob(proxyIpQueue, "http://spys.one/en/free-proxy-list/"), 40, 100, TimeUnit.SECONDS);
+//            schedulerJobExecutor.execute(new ProxynovaCrawlerJob(proxyIpQueue, "https://www.proxynova.com/proxy-server-list/"), 50, 100, TimeUnit.SECONDS);
+//            schedulerJobExecutor.execute(new GatherproxyCrawlerJob(proxyIpQueue, "http://www.gatherproxy.com/"), 70, 100, TimeUnit.SECONDS);
+
+            // Slow in China mainland
+//            schedulerJobExecutor.execute(new MyProxyCrawlerJob(proxyIpQueue, "https://www.my-proxy.com/free-proxy-list.html"), 30, 100, TimeUnit.SECONDS);
 
             //消费者
             for (int i = 0; i < 5; i++) {
@@ -56,15 +67,17 @@ public class CrawlerJob implements Runnable {
                             try {
                                 log.info("the proxyIpQueue current  size:{}", proxyIpQueue.size());
                                 ProxyIp proxyIp = proxyIpQueue.poll();
-                                if (proxyIp != null) {
-                                    log.debug("get proxy ip:{}", proxyIp.toString());
-                                    if (proxyIpService.findByIpEqualsAndPortEqualsAndTypeEquals(proxyIp.getIp(), proxyIp.getPort(), proxyIp.getType()) == null) {
-                                        proxyIpService.save(proxyIp);
-                                    } else {
-                                        log.debug("the proxy ip exist:{}", proxyIp.toString());
+                                synchronized (this) {
+                                    if (proxyIp != null) {
+                                        log.debug("get proxy ip:{}", proxyIp.toString());
+                                        if (proxyIpService.findByIpEqualsAndPortEqualsAndTypeEquals(proxyIp.getIp(), proxyIp.getPort(), proxyIp.getType()) == null) {
+                                            proxyIpService.save(proxyIp);
+                                        } else {
+                                            log.debug("the proxy ip exist:{}", proxyIp.toString());
+                                        }
+                                    }else{
+                                        TimeUnit.SECONDS.sleep(3);
                                     }
-                                }else{
-                                    TimeUnit.SECONDS.sleep(3);
                                 }
                             } catch (Exception e) {
                                 log.error("get the proxy ip  failed! error:{}",e.getMessage());
