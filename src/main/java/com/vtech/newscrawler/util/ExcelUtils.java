@@ -20,7 +20,7 @@ public class ExcelUtils {
         FileInputStream excelFileInputStream = null;
         XSSFWorkbook workbook = null;
         try {
-            excelFileInputStream = new FileInputStream("./excel/template.xlsx");
+            excelFileInputStream = new FileInputStream("/usr/local/excel/template.xlsx");
             workbook = new XSSFWorkbook(excelFileInputStream);
             excelFileInputStream.close();
         } catch (IOException e) {
@@ -32,7 +32,7 @@ public class ExcelUtils {
     public static void createExcel(){
         XSSFWorkbook workbook = getExcelTemplate();
         //保存到本地
-        File file = new File("./excel/today.xlsx");
+        File file = new File("/usr/local/excel/today.xlsx");
         FileOutputStream outputStream = null;
         //将Excel写入输出流中
         try {
@@ -48,7 +48,7 @@ public class ExcelUtils {
 
     public static void insertData(Map<String, List<ExcelData>> dataList){
         createExcel();
-        XSSFWorkbook workbook = getExcelByPath("./excel/today.xlsx");
+        XSSFWorkbook workbook = getExcelByPath("/usr/local/excel/today.xlsx");
         if(MapUtils.isNotEmpty(dataList)){
             for (String key:dataList.keySet()){
                 XSSFSheet sheet = workbook.getSheet(key);
@@ -60,7 +60,7 @@ public class ExcelUtils {
         }
         FileOutputStream excelFileOutPutStream = null;
         try {
-            excelFileOutPutStream = new FileOutputStream("./excel/today.xlsx");
+            excelFileOutPutStream = new FileOutputStream("/usr/local/excel/today.xlsx");
             workbook.write(excelFileOutPutStream);
             excelFileOutPutStream.flush();
             excelFileOutPutStream.close();

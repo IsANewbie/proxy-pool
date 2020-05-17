@@ -68,11 +68,11 @@ public class CrawlerJob implements Runnable {
                                 ProxyIp proxyIp = proxyIpQueue.poll();
                                 synchronized (this) {
                                     if (proxyIp != null) {
-                                        log.debug("get proxy ip:{}", proxyIp.toString());
+//                                        log.debug("get proxy ip:{}", proxyIp.toString());
                                         if (proxyIpService.findByIpEqualsAndPortEqualsAndTypeEquals(proxyIp.getIp(), proxyIp.getPort(), proxyIp.getType()) == null) {
                                             proxyIpService.save(proxyIp);
                                         } else {
-                                            log.debug("the proxy ip exist:{}", proxyIp.toString());
+//                                            log.debug("the proxy ip exist:{}", proxyIp.toString());
                                         }
                                     }else{
                                         TimeUnit.SECONDS.sleep(3);

@@ -1,6 +1,5 @@
 package com.vtech.newscrawler.controller;
 
-import com.alibaba.fastjson.JSON;
 import com.vtech.newscrawler.entity.ProxyIp;
 import com.vtech.newscrawler.entity.Result;
 import com.vtech.newscrawler.service.IProxyIpRedisService;
@@ -18,7 +17,6 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.List;
 
 /**
  * @author chenerzhu
@@ -35,9 +33,9 @@ public class ProxyIpController extends BaseController {
 
     @GetMapping("/")
     public String index(ModelMap modelMap){
-        List proxyIpList=proxyIpRedisService.findAllByPageRt(0,20);
-        modelMap.put("proxyIpList", JSON.toJSON(proxyIpList));
-        return "index";
+//        List proxyIpList=proxyIpRedisService.findAllByPageRt(0,20);
+//        modelMap.put("proxyIpList", JSON.toJSON(proxyIpList));
+        return "search";
     }
 
     @GetMapping("/proxyIpLow")

@@ -26,6 +26,13 @@ public class BaiduNewsSeerviceImpl implements BaiduNewsSeervice {
         ExcelUtils.insertData(map);
     }
 
+    @Override
+    public List<ExcelData> getExcelData(String keyWord) {
+        List<News> news = baiduCrawl.getNews(keyWord);
+        List<ExcelData> excelDataList = POJOTrans(keyWord,news);
+        return excelDataList;
+    }
+
     private List<ExcelData> POJOTrans(String keyWord,List<News> news){
         List<ExcelData> excelDataList = new ArrayList<>(news.size());
         news.forEach(o -> {

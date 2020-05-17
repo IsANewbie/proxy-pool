@@ -3,13 +3,13 @@
 	xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
 	<modelVersion>4.0.0</modelVersion>
 
-	<groupId>com.chenerzhu.crawler</groupId>
-	<artifactId>proxy-pool</artifactId>
+	<groupId>com.vtech.newscrawler</groupId>
+	<artifactId>news-crawler</artifactId>
 	<version>1.0-SNAPSHOT</version>
-	<packaging>jar</packaging>
+	<packaging>war</packaging>
 
-	<name>proxy-pool</name>
-	<description>proxy-pool</description>
+	<name>news</name>
+	<description>news</description>
 
 	<parent>
 		<groupId>org.springframework.boot</groupId>
@@ -45,6 +45,18 @@
             <groupId>org.springframework.boot</groupId>
             <artifactId>spring-boot-starter-thymeleaf</artifactId>
         </dependency>
+		<!--需要打开注释上阿里云-->
+		<dependency>
+			<groupId>org.apache.tomcat</groupId>
+			<artifactId>tomcat-juli</artifactId>
+			<version>8.5.35</version>
+		</dependency>
+		<!--需要打开注释上阿里云-->
+		<dependency>
+			<groupId>org.springframework.boot</groupId>
+			<artifactId>spring-boot-starter-tomcat</artifactId>
+			<scope>provided</scope>
+		</dependency>
         <dependency>
             <groupId>io.lettuce</groupId>
             <artifactId>lettuce-core</artifactId>
@@ -110,10 +122,15 @@
             <version>4.12</version>
             <scope>test</scope>
         </dependency>
+
+		<dependency>
+			<groupId>org.springframework.boot</groupId>
+			<artifactId>spring-boot-starter-mail</artifactId>
+		</dependency>
     </dependencies>
 
     <build>
-		<finalName>proxy-pool-1.0</finalName>
+		<finalName>news</finalName>
         <plugins>
             <plugin>
                 <groupId>org.springframework.boot</groupId>

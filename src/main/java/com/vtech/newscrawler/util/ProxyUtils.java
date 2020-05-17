@@ -21,7 +21,7 @@ import java.util.concurrent.atomic.AtomicInteger;
 public final class ProxyUtils {
     //private static final String VALIDATE_URL = "http://115.239.211.112";
     private static final String VALIDATE_URL = "http://www.baidu.com/";
-
+    private static final String VALIDATE_URL_WECHAT = "https://weixin.sogou.com/weixin?query=%E4%BF%A1%E4%B8%B0%E4%B8%AD%E5%AD%A6&_sug_=y&page=1&type=2&ie=utf8&_sug_type_=&s_from=input";
     public static boolean validateIp(String ip, int port, ProxyType proxyType) {
         boolean available = false;
         if (proxyType.getType().equalsIgnoreCase("http")) {
@@ -36,7 +36,7 @@ public final class ProxyUtils {
         boolean available = false;
         HttpURLConnection connection = null;
         try {
-            URL url = new URL(VALIDATE_URL);
+            URL url = new URL(VALIDATE_URL_WECHAT);
             Proxy proxy = new Proxy(Proxy.Type.HTTP, new InetSocketAddress(ip, port));
             connection = (HttpURLConnection) url.openConnection(proxy);
             connection.setRequestProperty("accept", "");
@@ -51,9 +51,13 @@ public final class ProxyUtils {
             while ((s = br.readLine()) != null) {
                 sb.append(s);
             }
-            if (sb.toString().contains("baidu.com") && connection.getResponseCode() == 200) {
-                available = true;
+            if (connection.getResponseCode() == 200) {
+                if(!sb.toString().contains("我们的系统检测到您网络中存在异常访问请求")){
+                    available = true;
+                }
+
             }
+
             log.info("validateHttp ==> ip:{} port:{} info:{}", ip, port, connection.getResponseMessage());
         } catch (Exception e) {
             //e.printStackTrace();
@@ -62,6 +66,7 @@ public final class ProxyUtils {
             if (connection != null) {
                 connection.disconnect();
             }
+
         }
         return available;
     }
@@ -70,7 +75,7 @@ public final class ProxyUtils {
         boolean available = false;
         HttpsURLConnection httpsURLConnection = null;
         try {
-            URL url = new URL(null, VALIDATE_URL, new Handler());
+            URL url = new URL(null, VALIDATE_URL_WECHAT, new Handler());
             Proxy proxy = new Proxy(Proxy.Type.HTTP, new InetSocketAddress(ip, port));
             httpsURLConnection = (HttpsURLConnection) url.openConnection(proxy);
             httpsURLConnection.setSSLSocketFactory(HttpsUtils.getSslSocketFactory());
@@ -87,8 +92,10 @@ public final class ProxyUtils {
             while ((s = br.readLine()) != null) {
                 sb.append(s);
             }
-            if (sb.toString().contains("baidu.com") && httpsURLConnection.getResponseCode() == 200) {
-                available = true;
+            if (httpsURLConnection.getResponseCode() == 200) {
+                if(!sb.toString().contains("我们的系统检测到您网络中存在异常访问请求")){
+                    available = true;
+                }
             }
             log.info("validateHttps ==> ip:{} port:{} info:{}", ip, port, httpsURLConnection.getResponseMessage());
         } catch (Exception e) {
