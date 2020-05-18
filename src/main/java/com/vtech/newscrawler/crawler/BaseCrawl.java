@@ -44,6 +44,7 @@ public class BaseCrawl {
         } catch (ClientProtocolException e) {
             e.printStackTrace();
         } catch (IOException e) {
+            System.out.println(request.getURI().toString());
             e.printStackTrace();
         } finally {
             //6.关闭

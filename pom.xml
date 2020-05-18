@@ -45,18 +45,18 @@
             <groupId>org.springframework.boot</groupId>
             <artifactId>spring-boot-starter-thymeleaf</artifactId>
         </dependency>
-		<!--需要打开注释上阿里云-->
+		<!--&lt;!&ndash;需要打开注释上阿里云&ndash;&gt;
 		<dependency>
 			<groupId>org.apache.tomcat</groupId>
 			<artifactId>tomcat-juli</artifactId>
 			<version>8.5.35</version>
 		</dependency>
-		<!--需要打开注释上阿里云-->
+		&lt;!&ndash;需要打开注释上阿里云&ndash;&gt;
 		<dependency>
 			<groupId>org.springframework.boot</groupId>
 			<artifactId>spring-boot-starter-tomcat</artifactId>
 			<scope>provided</scope>
-		</dependency>
+		</dependency>-->
         <dependency>
             <groupId>io.lettuce</groupId>
             <artifactId>lettuce-core</artifactId>

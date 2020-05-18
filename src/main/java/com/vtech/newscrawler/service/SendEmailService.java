@@ -3,6 +3,7 @@ package com.vtech.newscrawler.service;/**
  * @create 2020/5/16 - 16:21
  */
 
+import com.vtech.newscrawler.util.ExcelUtils;
 import com.vtech.newscrawler.util.VeDate;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.core.io.FileSystemResource;
@@ -53,7 +54,7 @@ public class SendEmailService {
     public String sendAttachment(String keyword) throws MessagingException, MessagingException {
         MimeMessage message = jms.createMimeMessage();
         MimeMessageHelper helper = new MimeMessageHelper(message,true);
-        String filePath = "/usr/local/excel/today.xlsx";
+        String filePath = ExcelUtils.NEW;
         String content = VeDate.dateToStrLong(new Date())+ "关键词"+keyword+"舆情信息";
         //发送方
         helper.setFrom(SENDER);
