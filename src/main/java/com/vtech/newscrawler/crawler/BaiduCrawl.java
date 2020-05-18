@@ -6,20 +6,16 @@ import com.vtech.newscrawler.entity.baidu.Root;
 import com.vtech.newscrawler.entity.excel.ExcelData;
 import com.vtech.newscrawler.util.ExcelUtils;
 import com.vtech.newscrawler.util.UicodeBackslashU;
-import org.apache.commons.lang.StringUtils;
 import org.apache.http.client.methods.HttpGet;
 import org.apache.http.client.utils.URIBuilder;
 import org.jsoup.Connection;
 import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
 import org.jsoup.nodes.Element;
-import org.jsoup.nodes.TextNode;
 import org.jsoup.select.Elements;
 import org.springframework.stereotype.Component;
 import org.springframework.util.CollectionUtils;
 
-import javax.print.Doc;
-import javax.xml.bind.SchemaOutputResolver;
 import java.io.*;
 import java.net.URI;
 import java.net.URISyntaxException;
@@ -30,6 +26,7 @@ import java.util.stream.Collectors;
 public class BaiduCrawl extends BaseCrawl {
     static HttpGet request = new HttpGet();
     static Map<String,String> param = new HashMap<>();
+    private static final String[] TITLE_REGX = {"-","|"};
     public static void init() {
         //设置请求头
 //        request.setHeader("Accept","*/*");
@@ -166,7 +163,6 @@ public class BaiduCrawl extends BaseCrawl {
                 Element a = result.select("a").first();
                 String title = a.text();
                 Element timeSpan = body.select("span").first();
-                System.out.println(title);
                 if(!Objects.isNull(timeSpan)){
                     String time = timeSpan.text();
 //                    Element a = result.select("a").first();
@@ -181,6 +177,17 @@ public class BaiduCrawl extends BaseCrawl {
                         Document document = Jsoup.parse(Temphtml);
                         Elements titleEle =  document.getElementsByTag("title");
                         title = titleEle.isEmpty() ? title : titleEle.first().text();
+                        System.out.println(title);
+                        if(title.contains("|")){
+                            title = title.split("\\|")[0];
+                        }else if(title.contains("_")){
+                            title = title.split("_")[0];
+                        }else if(title.contains("-")){
+                            title = title.split("-")[0];
+                        }else if(title.contains("�")){
+                            title = "标题乱码，建议手动输入";
+                        }
+                        System.out.println(title);
                         String media = Objects.isNull(mediaEle) ? "" : mediaEle.text();
                         excelData.setChannel("百度");
                         excelData.setKeyword(keyWord);
@@ -188,7 +195,6 @@ public class BaiduCrawl extends BaseCrawl {
                         excelData.setTitle(title);
                         excelData.setUrl(url);
                         excelData.setDate(time);
-                        System.out.println(excelData.toString());
                         newsResult.add(excelData);
                     }
                 }
