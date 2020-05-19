@@ -1,12 +1,8 @@
 package com.vtech.newscrawler.crawler;
 
-import com.vtech.newscrawler.entity.ProxyIp;
-import com.vtech.newscrawler.service.IProxyIpRedisService;
 import org.apache.http.HttpEntity;
-import org.apache.http.HttpHost;
 import org.apache.http.HttpStatus;
 import org.apache.http.client.ClientProtocolException;
-import org.apache.http.client.config.RequestConfig;
 import org.apache.http.client.methods.CloseableHttpResponse;
 import org.apache.http.client.methods.HttpGet;
 import org.apache.http.client.utils.HttpClientUtils;
@@ -15,13 +11,12 @@ import org.apache.http.impl.client.HttpClients;
 import org.apache.http.util.EntityUtils;
 import org.springframework.stereotype.Component;
 
-import javax.annotation.Resource;
 import java.io.IOException;
 
 @Component
 public class BaseCrawl {
-    @Resource
-    IProxyIpRedisService proxyIpRedisService;
+//    @Resource
+//    IProxyIpRedisService proxyIpRedisService;
     public static String getRespJSONByRequest(HttpGet request){
         String result = null;
         //1.生成httpclient，相当于该打开一个浏览器
@@ -88,17 +83,17 @@ public class BaseCrawl {
         return response;
     }
 
-    protected HttpGet setProxy(HttpGet request){
-        ProxyIp proxyIp = proxyIpRedisService.getOneRt();
-        System.out.println(proxyIp.toString());
-        HttpHost proxy = new HttpHost(proxyIp.getIp(),proxyIp.getPort());
-        RequestConfig requestConfig = RequestConfig.custom()
-                .setProxy(proxy)
-                .setConnectTimeout(10000)
-                .setSocketTimeout(10000)
-                .setConnectionRequestTimeout(10000)
-                .build();
-        request.setConfig(requestConfig);
-        return request;
-    }
+//    protected HttpGet setProxy(HttpGet request){
+//        ProxyIp proxyIp = proxyIpRedisService.getOneRt();
+//        System.out.println(proxyIp.toString());
+//        HttpHost proxy = new HttpHost(proxyIp.getIp(),proxyIp.getPort());
+//        RequestConfig requestConfig = RequestConfig.custom()
+//                .setProxy(proxy)
+//                .setConnectTimeout(10000)
+//                .setSocketTimeout(10000)
+//                .setConnectionRequestTimeout(10000)
+//                .build();
+//        request.setConfig(requestConfig);
+//        return request;
+//    }
 }

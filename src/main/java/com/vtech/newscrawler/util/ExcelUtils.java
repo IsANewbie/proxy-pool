@@ -16,8 +16,10 @@ import java.util.List;
 import java.util.Map;
 
 public class ExcelUtils {
-    private static final String TEMAPLATE = "D://usr/local/excel/template.xlsx";
-    public static final String NEW = "D://usr/local/excel/today.xlsx";
+//    private static final String TEMAPLATE = "D://usr/local/excel/template.xlsx";
+//    public static final String NEW = "D://usr/local/excel/today.xlsx";
+    private static final String TEMAPLATE = "/usr/local/excel/template.xlsx";
+    public static final String NEW = "/usr/local/excel/today.xlsx";
 
     public static XSSFWorkbook getExcelTemplate(){
         FileInputStream excelFileInputStream = null;

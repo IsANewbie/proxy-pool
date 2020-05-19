@@ -1,7 +1,6 @@
 package com.vtech.newscrawler;
 
 import com.vtech.newscrawler.crawler.WechatCrawl;
-import com.vtech.newscrawler.entity.excel.ExcelData;
 import com.vtech.newscrawler.service.IProxyIpService;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -12,7 +11,6 @@ import org.springframework.test.context.junit4.SpringRunner;
 
 import javax.annotation.Resource;
 import java.io.Serializable;
-import java.util.List;
 
 /**
  * Created by chenerzhu on 2018/9/2.
@@ -88,7 +86,6 @@ public class ProxyPoolApplicationTest {
 //    }
     @Test
     public void get(){
-        List<ExcelData> excelData = wechatCrawl.getNews("信丰中学");
-        System.out.println(excelData);
+        System.out.println(1);
     }
 }

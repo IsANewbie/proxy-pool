@@ -20,16 +20,16 @@ public class BaiduNewsSeerviceImpl implements BaiduNewsSeervice {
 
     @Override
     public void createExcel(String keyWord) {
-        List<News> news = baiduCrawl.getNews(keyWord);
+//        List<News> news = baiduCrawl.getNews(keyWord);
+        List<ExcelData> excelDataList = baiduCrawl.getBaiduNews(keyWord);
         Map<String,List<ExcelData>> map = new HashMap<>();
-        map.put("百度",POJOTrans(keyWord,news));
+        map.put("百度",excelDataList);
         ExcelUtils.insertData(map);
     }
 
     @Override
     public List<ExcelData> getExcelData(String keyWord) {
-        List<News> news = baiduCrawl.getNews(keyWord);
-        List<ExcelData> excelDataList = POJOTrans(keyWord,news);
+        List<ExcelData> excelDataList = baiduCrawl.getBaiduNews(keyWord);
         return excelDataList;
     }
 

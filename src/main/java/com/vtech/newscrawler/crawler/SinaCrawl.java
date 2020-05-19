@@ -11,6 +11,7 @@ import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
 import org.jsoup.nodes.Element;
 import org.jsoup.select.Elements;
+import org.springframework.stereotype.Component;
 import org.springframework.util.CollectionUtils;
 
 import java.net.URI;
@@ -26,6 +27,7 @@ import java.util.Map;
  *@Author 邹斌
  *@Date 2020/5/18 23:15
  **/
+@Component
 public class SinaCrawl extends BaseCrawl {
     static HttpGet request = new HttpGet();
     static Map<String,String> param = new HashMap<>();
@@ -43,7 +45,7 @@ public class SinaCrawl extends BaseCrawl {
         param.put("num","10");
     }
 
-    public static List<ExcelData> getBaiduNews(String keywords){
+    public List<ExcelData> getSinaNews(String keywords){
         List<ExcelData> news = new ArrayList<>();
         int pn =0;
         init();
@@ -89,6 +91,7 @@ public class SinaCrawl extends BaseCrawl {
             Element info = result.select("h2").first();
             String title = info.select("a").first().text();
             if(title.contains(keyWord)){
+                String url = info.select("a").first().attr("href");
                 String mediaAndDate = info.select(".fgray_time").text();
                 String media = "未知媒体";
                 String date = "未知发布时间";
@@ -100,6 +103,7 @@ public class SinaCrawl extends BaseCrawl {
                 excelData.setChannel("新浪财经");
                 excelData.setMedia(media);
                 excelData.setTitle(title);
+                excelData.setUrl(url);
                 excelData.setDate(date);
                 newsResult.add(excelData);
             }
@@ -107,9 +111,9 @@ public class SinaCrawl extends BaseCrawl {
         return newsResult;
     }
 
-    public static void main(String[] args) {
-        getBaiduNews("贵州茅台").forEach(o ->{
-            System.out.println(o.toString());
-        });
-    }
+//    public static void main(String[] args) {
+//        getBaiduNews("贵州茅台").forEach(o ->{
+//            System.out.println(o.toString());
+//        });
+//    }
 }

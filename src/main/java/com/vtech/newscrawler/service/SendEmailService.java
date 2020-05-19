@@ -29,7 +29,9 @@ public class SendEmailService {
     JavaMailSender jms;
 
     private final static String RESVICER = "zhengsq@qhee.com";
+//    private final static String RESVICER = "332280454@qq.com";
     private final static String SENDER = "1174475761@qq.com";
+//    private final static String SENDER = "zoubin_1996@163.com";
 
     public String send(String sender,String receiver,String title,String text){
         //建立邮件消息
@@ -71,6 +73,7 @@ public class SendEmailService {
         String fileName = content+".xlsx";
         helper.addAttachment(fileName,file);
         jms.send(message);
+        System.out.println("发送成功");
         return "sendAttachment success";
     }
 

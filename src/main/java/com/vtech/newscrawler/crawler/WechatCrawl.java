@@ -66,15 +66,18 @@ public class WechatCrawl extends BaseCrawl{
                 uri = builder.build();
                 request.setURI(uri);
                 html = getRespJSONByRequest(request);
-                if(isEmpty(html)){
-                    request = setProxy(request);
-                    html = getRespJSONByRequest(request);
-                }
-                excelDataList.addAll(getNewsByHtml(html,keywords));
-                pn++;
-                if(!continueCrawl(html,keywords)){
+                if(!isEmpty(html)){
+//                    request = setProxy(request);
+//                    html = getRespJSONByRequest(request);
+                    excelDataList.addAll(getNewsByHtml(html,keywords));
+                    pn++;
+                    if(!continueCrawl(html,keywords)){
+                        flag = false;
+                    }
+                }else {
                     flag = false;
                 }
+
 
             } catch (URISyntaxException e) {
                 e.printStackTrace();

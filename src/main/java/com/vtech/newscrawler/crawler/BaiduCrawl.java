@@ -4,7 +4,6 @@ import com.alibaba.fastjson.JSON;
 import com.vtech.newscrawler.entity.baidu.News;
 import com.vtech.newscrawler.entity.baidu.Root;
 import com.vtech.newscrawler.entity.excel.ExcelData;
-import com.vtech.newscrawler.util.ExcelUtils;
 import com.vtech.newscrawler.util.UicodeBackslashU;
 import org.apache.http.client.methods.HttpGet;
 import org.apache.http.client.utils.URIBuilder;
@@ -101,7 +100,7 @@ public class BaiduCrawl extends BaseCrawl {
 //                .collect(Collectors.toList());
         return news;
     }
-    public static List<ExcelData> getBaiduNews(String keywords){
+    public List<ExcelData> getBaiduNews(String keywords){
         List<ExcelData> news = new ArrayList<>();
         int pn =0;
         init();
@@ -137,17 +136,17 @@ public class BaiduCrawl extends BaseCrawl {
         return news;
     }
 
-    public static void main(String[] args) throws URISyntaxException {
-        List<ExcelData> excelData = getBaiduNews("瑞金证券");
-        ExcelUtils.createExcel();
-        HashMap<String,List<ExcelData>> params = new HashMap<>();
-        params.put("百度",excelData);
-        ExcelUtils.insertData(params);
-//        excelData.forEach(o -> {
-//            System.out.println(o.toString());
-//        });
-        System.out.println(excelData.size());
-    }
+//    public static void main(String[] args) throws URISyntaxException {
+//        List<ExcelData> excelData = getBaiduNews("瑞金证券");
+//        ExcelUtils.createExcel();
+//        HashMap<String,List<ExcelData>> params = new HashMap<>();
+//        params.put("百度",excelData);
+//        ExcelUtils.insertData(params);
+////        excelData.forEach(o -> {
+////            System.out.println(o.toString());
+////        });
+//        System.out.println(excelData.size());
+//    }
 
     private static List<ExcelData> parseHtml(String html, String keyWord){
 
