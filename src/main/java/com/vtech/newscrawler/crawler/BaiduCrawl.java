@@ -4,7 +4,9 @@ import com.alibaba.fastjson.JSON;
 import com.vtech.newscrawler.entity.baidu.News;
 import com.vtech.newscrawler.entity.baidu.Root;
 import com.vtech.newscrawler.entity.excel.ExcelData;
+import com.vtech.newscrawler.util.ExcelUtils;
 import com.vtech.newscrawler.util.UicodeBackslashU;
+import org.apache.commons.lang.StringUtils;
 import org.apache.http.client.methods.HttpGet;
 import org.apache.http.client.utils.URIBuilder;
 import org.jsoup.Connection;
@@ -26,6 +28,7 @@ public class BaiduCrawl extends BaseCrawl {
     static HttpGet request = new HttpGet();
     static Map<String,String> param = new HashMap<>();
     private static final String[] TITLE_REGX = {"-","|"};
+    //rsv_pq=d7477ec000034e5a&rsv_t=105dA1arygiwn1kYd9SklBzRWfYTSTpQH%2Bvy6itxr4%2BStt%2FlpYMJ6gmzGes
     public static void init() {
         //设置请求头
 //        request.setHeader("Accept","*/*");
@@ -52,8 +55,14 @@ public class BaiduCrawl extends BaseCrawl {
 //        param.put("mid","825888965556c8a040d9986e485455cf51a7f56c");
 //        param.put("os","iphone");
 //        param.put("pd","newsplus");
-//        param.put("rn","20");
-//        param.put("sv","8.3.3");
+//        param.put("rsv_pq","d7477ec000034e5a");
+
+        param.put("ie", "utf-8");//关键字编码格式
+        param.put("rsv_idx", "1");//
+        param.put("f", "8");//用户自立搜索，透露表现用户直接点击“百度一下”按键
+        param.put("rsv_bq", "1");
+        param.put("tn", "baidu");
+
     }
 
     public List<News> getNews(String keywords){
@@ -103,10 +112,19 @@ public class BaiduCrawl extends BaseCrawl {
     public List<ExcelData> getBaiduNews(String keywords){
         List<ExcelData> news = new ArrayList<>();
         int pn =0;
+        String UserAgent = "Mozilla/5.0(WindowsNT10.0;Win64;x64)AppleWebKit/537.36(KHTML,likeGecko)Chrome/" + 59 + Math.round(Math.random() * 10) + ".0.3497." + Math.round(Math.random() * 100) + "Safari/537.36";
         init();
-        param.put("word",keywords);
+        param.put("wd",keywords);
+        param.put("oq", keywords);//上次索引关键字
+        request.setHeader("User-Agent",UserAgent);
         boolean flag = true;
-        while (flag){
+        int i = 0;
+        while (i < 50){
+            try {
+                Thread.sleep(100);
+            } catch (InterruptedException e) {
+                e.printStackTrace();
+            }
             param.put("pn",pn+"");
             String urlStr = "https://www.baidu.com/s";
             // 创建uri
@@ -127,26 +145,31 @@ public class BaiduCrawl extends BaseCrawl {
                 news.addAll(tempList);
                 pn+=10;
                 System.out.println(pn);
+                System.out.println(tempList.size());
+                System.out.println(html.length());
+                System.out.println(uri.toString());
             } catch (URISyntaxException e) {
                 e.printStackTrace();
             }
 
-
+            i++;
         }
         return news;
     }
 
-//    public static void main(String[] args) throws URISyntaxException {
-//        List<ExcelData> excelData = getBaiduNews("瑞金证券");
-//        ExcelUtils.createExcel();
-//        HashMap<String,List<ExcelData>> params = new HashMap<>();
-//        params.put("百度",excelData);
-//        ExcelUtils.insertData(params);
-////        excelData.forEach(o -> {
-////            System.out.println(o.toString());
-////        });
-//        System.out.println(excelData.size());
-//    }
+    public static void main(String[] args) throws URISyntaxException {
+        BaiduCrawl baiduCrawl = new BaiduCrawl();
+        List<ExcelData> excelData = baiduCrawl.getBaiduNews("瑞金证券");
+        ExcelUtils.createExcel();
+        HashMap<String,List<ExcelData>> params = new HashMap<>();
+        params.put("百度",excelData);
+        ExcelUtils.insertData(params);
+
+        excelData.forEach(o -> {
+            System.out.println(o.toString());
+        });
+        System.out.println(excelData.size());
+    }
 
     private static List<ExcelData> parseHtml(String html, String keyWord){
 
@@ -162,21 +185,27 @@ public class BaiduCrawl extends BaseCrawl {
                 Element a = result.select("a").first();
                 String title = a.text();
                 Element timeSpan = body.select("span").first();
-                if(!Objects.isNull(timeSpan)){
-                    String time = timeSpan.text();
+                if(true){
+                    String time = "无时间";
+                    if(!Objects.isNull(timeSpan)){
+                        time = timeSpan.text();
+                    }
+
 //                    Element a = result.select("a").first();
                     Element mediaEle = result.select(".nor-src-wrap").first();
 //                    String title = a.text();
                     String url = a.attr("href");
                     url = getRealUrlFromBaiduUrl(url);
-//                    System.out.println(title);
+                    System.out.println(title);
                     if(title.contains(keyWord) && !title.contains("百度知道")){
                         ExcelData excelData = new ExcelData();
                         String Temphtml = getHtml(url);
-                        Document document = Jsoup.parse(Temphtml);
-                        Elements titleEle =  document.getElementsByTag("title");
-                        title = titleEle.isEmpty() ? title : titleEle.first().text();
-                        System.out.println(title);
+                        if(StringUtils.isNotBlank(Temphtml)){
+
+                            Document document = Jsoup.parse(Temphtml);
+                            Elements titleEle =  document.getElementsByTag("title");
+                            title = titleEle.isEmpty() ? title : titleEle.first().text();
+                        }
                         if(title.contains("|")){
                             title = title.split("\\|")[0];
                         }else if(title.contains("_")){
@@ -186,7 +215,6 @@ public class BaiduCrawl extends BaseCrawl {
                         }else if(title.contains("�")){
                             title = "标题乱码，建议手动输入";
                         }
-                        System.out.println(title);
                         String media = Objects.isNull(mediaEle) ? "" : mediaEle.text();
                         excelData.setChannel("百度");
                         excelData.setKeyword(keyWord);

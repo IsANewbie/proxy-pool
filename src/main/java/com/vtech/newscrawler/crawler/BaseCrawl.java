@@ -34,6 +34,7 @@ public class BaseCrawl {
             } else {
                 //如果返回状态不是200，比如404（页面不存在）等，根据情况做处理，这里略
                 System.out.println("返回状态不是200");
+                System.out.println(request.getURI().toString());
                 System.out.println(EntityUtils.toString(response.getEntity(), "utf-8"));
             }
         } catch (ClientProtocolException e) {
