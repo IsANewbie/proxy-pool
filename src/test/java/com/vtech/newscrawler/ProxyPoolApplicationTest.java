@@ -1,7 +1,10 @@
 package com.vtech.newscrawler;
 
+import com.vtech.newscrawler.crawler.BaiduCrawl;
 import com.vtech.newscrawler.crawler.WechatCrawl;
+import com.vtech.newscrawler.entity.excel.ExcelData;
 import com.vtech.newscrawler.service.IProxyIpService;
+import com.vtech.newscrawler.util.ExcelUtils;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -11,6 +14,8 @@ import org.springframework.test.context.junit4.SpringRunner;
 
 import javax.annotation.Resource;
 import java.io.Serializable;
+import java.util.HashMap;
+import java.util.List;
 
 /**
  * Created by chenerzhu on 2018/9/2.
@@ -24,6 +29,8 @@ public class ProxyPoolApplicationTest {
     private IProxyIpService proxyIpService;
     @Resource
     private WechatCrawl wechatCrawl;
+    @Resource
+    private BaiduCrawl baiduCrawl;
 
 //    @Test
 //    public void testRedisExist() {
@@ -86,6 +93,15 @@ public class ProxyPoolApplicationTest {
 //    }
     @Test
     public void get(){
-        System.out.println(1);
+        List<ExcelData> excelData = baiduCrawl.getBaiduNews("瑞金证券");
+        ExcelUtils.createExcel();
+        HashMap<String,List<ExcelData>> params = new HashMap<>();
+        params.put("百度",excelData);
+        ExcelUtils.insertData(params);
+
+        excelData.forEach(o -> {
+            System.out.println(o.toString());
+        });
+        System.out.println(excelData.size());
     }
 }

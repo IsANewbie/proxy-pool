@@ -1,9 +1,11 @@
 package com.vtech.newscrawler.crawler;
 
 import com.alibaba.fastjson.JSON;
+import com.vtech.newscrawler.common.RedisKey;
 import com.vtech.newscrawler.entity.baidu.News;
 import com.vtech.newscrawler.entity.baidu.Root;
 import com.vtech.newscrawler.entity.excel.ExcelData;
+import com.vtech.newscrawler.service.IProxyIpRedisService;
 import com.vtech.newscrawler.util.ExcelUtils;
 import com.vtech.newscrawler.util.UicodeBackslashU;
 import org.apache.commons.lang.StringUtils;
@@ -18,6 +20,7 @@ import org.springframework.stereotype.Component;
 import org.springframework.util.CollectionUtils;
 
 import java.io.*;
+import java.net.ConnectException;
 import java.net.URI;
 import java.net.URISyntaxException;
 import java.util.*;
@@ -169,6 +172,7 @@ public class BaiduCrawl extends BaseCrawl {
             System.out.println(o.toString());
         });
         System.out.println(excelData.size());
+//        getHtml("http://gdgp.chinaxinge.com/oicnvev/");
     }
 
     private static List<ExcelData> parseHtml(String html, String keyWord){
@@ -185,47 +189,56 @@ public class BaiduCrawl extends BaseCrawl {
                 Element a = result.select("a").first();
                 String title = a.text();
                 Element timeSpan = body.select("span").first();
-                if(true){
-                    String time = "无时间";
+                    String time = "";
                     if(!Objects.isNull(timeSpan)){
                         time = timeSpan.text();
                     }
-
-//                    Element a = result.select("a").first();
                     Element mediaEle = result.select(".nor-src-wrap").first();
-//                    String title = a.text();
                     String url = a.attr("href");
                     url = getRealUrlFromBaiduUrl(url);
+                    String media = Objects.isNull(mediaEle) ? "" : mediaEle.text();
                     System.out.println(title);
-                    if(title.contains(keyWord) && !title.contains("百度知道")){
+                    if(StringUtils.isNotBlank(url) && !url.startsWith("m.")){
+                    if(title.contains(keyWord) && !media.contains("百度")){
                         ExcelData excelData = new ExcelData();
-                        String Temphtml = getHtml(url);
-                        if(StringUtils.isNotBlank(Temphtml)){
-
-                            Document document = Jsoup.parse(Temphtml);
+                        String TempHtml = getHtml(url);
+                        boolean canAdd = true;
+                        if(!TempHtml.equals("404")){
+                            canAdd = TempHtml.contains(keyWord) && !TempHtml.equals("404");
+                            canAdd = canAdd && !title.contains("【");
+                            Document document = Jsoup.parse(TempHtml);
                             Elements titleEle =  document.getElementsByTag("title");
                             title = titleEle.isEmpty() ? title : titleEle.first().text();
                         }
-                        if(title.contains("|")){
-                            title = title.split("\\|")[0];
-                        }else if(title.contains("_")){
-                            title = title.split("_")[0];
-                        }else if(title.contains("-")){
-                            title = title.split("-")[0];
-                        }else if(title.contains("�")){
-                            title = "标题乱码，建议手动输入";
+                        if(canAdd){
+                            String finalTitle = title;
+                            String spareMedia = media;
+                            if(title.contains("|")){
+                                finalTitle = title.split("\\|")[0];
+                                spareMedia = title.split("\\|")[1];
+                            }else if(title.contains("_")){
+                                finalTitle = title.split("_")[0];
+                                spareMedia = title.split("_")[1];
+                            }else if(title.contains("-")){
+                                finalTitle = title.split("-")[0];
+                                spareMedia = title.split("-")[1];
+                            }else if(title.contains("�")){
+                                finalTitle = "";
+                            }
+                            canAdd = !spareMedia.contains("【") || !media.contains("【") ;
+                            excelData.setChannel("百度");
+                            excelData.setKeyword(keyWord);
+                            excelData.setMedia(StringUtils.isBlank(media) ? spareMedia : media);
+                            excelData.setTitle(finalTitle);
+                            excelData.setUrl(url);
+                            excelData.setDate(time);
+                            if(canAdd){
+                                newsResult.add(excelData);
+                            }
                         }
-                        String media = Objects.isNull(mediaEle) ? "" : mediaEle.text();
-                        excelData.setChannel("百度");
-                        excelData.setKeyword(keyWord);
-                        excelData.setMedia(media);
-                        excelData.setTitle(title);
-                        excelData.setUrl(url);
-                        excelData.setDate(time);
-                        newsResult.add(excelData);
-                    }
-                }
 
+                    }
+                    }
             }
         }
         return newsResult;
@@ -252,6 +265,8 @@ public class BaiduCrawl extends BaseCrawl {
         try {
             res = Jsoup.connect(url).timeout(itimeout).method(Connection.Method.GET).followRedirects(false).execute();
             return res.header("Location");
+        } catch (ConnectException e){
+            e.getMessage();
         } catch (IOException e) {
             e.printStackTrace();
         }
@@ -259,23 +274,24 @@ public class BaiduCrawl extends BaseCrawl {
     }
     private static String getBaiduSearch() throws URISyntaxException {
         BaiduCrawl baiduCrawl = new BaiduCrawl();
-        baiduCrawl.init();
+        init();
         URI uri = new URI("https://www.baidu.com/s?word=%E7%91%9E%E9%87%91%E8%AF%81%E5%88%B8&pn=10");
         request.setURI(uri);
         String html = BaseCrawl.getRespJSONByRequest(request);
         return html;
     }
     private static String getHtml(String url){
-        BaiduCrawl baiduCrawl = new BaiduCrawl();
-        baiduCrawl.init();
+        HttpGet httpGet = new HttpGet();
+        httpGet.setHeader("User-Agent", "Mozilla/5.0 (Windows NT 10.0; WOW64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/81.0.4044.122 Safari/537.36");
+
         URI uri = null;
         try {
             uri = new URI(url);
         } catch (URISyntaxException e) {
             e.printStackTrace();
         }
-        request.setURI(uri);
-        String html = BaseCrawl.getRespJSONByRequest(request);
+        httpGet.setURI(uri);
+        String html = getRespJSONByRequest(httpGet);
         return html;
     }
     private static void saveHtml( String html) {

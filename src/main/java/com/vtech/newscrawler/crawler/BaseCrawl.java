@@ -1,17 +1,30 @@
 package com.vtech.newscrawler.crawler;
 
+import com.vtech.newscrawler.util.WebClientDevWrapper;
 import org.apache.http.HttpEntity;
 import org.apache.http.HttpStatus;
 import org.apache.http.client.ClientProtocolException;
 import org.apache.http.client.methods.CloseableHttpResponse;
 import org.apache.http.client.methods.HttpGet;
 import org.apache.http.client.utils.HttpClientUtils;
+import org.apache.http.conn.HttpHostConnectException;
+import org.apache.http.conn.ssl.*;
 import org.apache.http.impl.client.CloseableHttpClient;
 import org.apache.http.impl.client.HttpClients;
+import org.apache.http.ssl.SSLContextBuilder;
 import org.apache.http.util.EntityUtils;
 import org.springframework.stereotype.Component;
 
+import javax.net.ssl.HostnameVerifier;
+import javax.net.ssl.SSLContext;
+import javax.net.ssl.SSLPeerUnverifiedException;
 import java.io.IOException;
+import java.net.SocketException;
+import java.security.KeyManagementException;
+import java.security.KeyStoreException;
+import java.security.NoSuchAlgorithmException;
+import java.security.cert.CertificateException;
+import java.security.cert.X509Certificate;
 
 @Component
 public class BaseCrawl {
@@ -20,10 +33,9 @@ public class BaseCrawl {
     public static String getRespJSONByRequest(HttpGet request){
         String result = null;
         //1.生成httpclient，相当于该打开一个浏览器
-        CloseableHttpClient httpClient = HttpClients.createDefault();
+        CloseableHttpClient httpClient = HttpClients.custom().setSSLSocketFactory(createIgnoreVerifySSL()).build();
         CloseableHttpResponse response = null;
         try {
-
             //3.执行get请求，相当于在输入地址栏后敲回车键
             response = httpClient.execute(request);
             //4.判断响应状态为200，进行处理
@@ -34,10 +46,15 @@ public class BaseCrawl {
             } else {
                 //如果返回状态不是200，比如404（页面不存在）等，根据情况做处理，这里略
                 System.out.println("返回状态不是200");
-                System.out.println(request.getURI().toString());
-                System.out.println(EntityUtils.toString(response.getEntity(), "utf-8"));
+                result = "404";
             }
+        }catch (HttpHostConnectException e){
+            e.printStackTrace();
+        }catch (SocketException e){
+            e.printStackTrace();
         } catch (ClientProtocolException e) {
+            e.printStackTrace();
+        } catch (SSLPeerUnverifiedException e){
             e.printStackTrace();
         } catch (IOException e) {
             System.out.println(request.getURI().toString());
@@ -97,4 +114,33 @@ public class BaseCrawl {
 //        request.setConfig(requestConfig);
 //        return request;
 //    }
+
+    /**
+     * 绕过验证
+     * @return
+     * @throws NoSuchAlgorithmException
+     * @throws KeyManagementException
+     * @throws KeyStoreException
+     */
+    public static SSLConnectionSocketFactory createIgnoreVerifySSL() {
+        SSLContext sslContext = null;
+        try {
+            sslContext = new SSLContextBuilder().loadTrustMaterial(null, new TrustStrategy() {
+                // 信任所有
+                @Override
+                public boolean isTrusted(X509Certificate[] chain, String authType) throws CertificateException {
+                    return true;
+                }
+            }).build();
+        } catch (NoSuchAlgorithmException e) {
+            e.printStackTrace();
+        } catch (KeyManagementException e) {
+            e.printStackTrace();
+        } catch (KeyStoreException e) {
+            e.printStackTrace();
+        }
+        HostnameVerifier hostnameVerifier = NoopHostnameVerifier.INSTANCE;
+        SSLConnectionSocketFactory sslsf = new SSLConnectionSocketFactory(sslContext, hostnameVerifier);
+        return sslsf;
+    }
 }
