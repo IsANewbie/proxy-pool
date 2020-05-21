@@ -1,14 +1,13 @@
 package com.vtech.newscrawler.crawler;
 
 import com.alibaba.fastjson.JSON;
-import com.vtech.newscrawler.common.RedisKey;
 import com.vtech.newscrawler.entity.baidu.News;
 import com.vtech.newscrawler.entity.baidu.Root;
 import com.vtech.newscrawler.entity.excel.ExcelData;
-import com.vtech.newscrawler.service.IProxyIpRedisService;
-import com.vtech.newscrawler.util.ExcelUtils;
+import com.vtech.newscrawler.util.HttpRequestUtils;
 import com.vtech.newscrawler.util.UicodeBackslashU;
 import org.apache.commons.lang.StringUtils;
+import org.apache.http.client.config.RequestConfig;
 import org.apache.http.client.methods.HttpGet;
 import org.apache.http.client.utils.URIBuilder;
 import org.jsoup.Connection;
@@ -66,6 +65,11 @@ public class BaiduCrawl extends BaseCrawl {
         param.put("rsv_bq", "1");
         param.put("tn", "baidu");
 
+        RequestConfig requestConfig = RequestConfig.custom()
+                .setConnectTimeout(50000).setConnectionRequestTimeout(10000)
+                .setSocketTimeout(50000).build();
+        request.setConfig(requestConfig);
+
     }
 
     public List<News> getNews(String keywords){
@@ -87,7 +91,7 @@ public class BaiduCrawl extends BaseCrawl {
                 }
                 uri = builder.build();
                 request.setURI(uri);
-                String html = getRespJSONByRequest(request);
+                String html = HttpRequestUtils.httpGet(uri.toString(),6000);
                 html = UicodeBackslashU.unicodeToCn(html);
                 Root root = JSON.parseObject(html,Root.class);
                 flag = root.getData().isHasmore();
@@ -160,20 +164,20 @@ public class BaiduCrawl extends BaseCrawl {
         return news;
     }
 
-    public static void main(String[] args) throws URISyntaxException {
-        BaiduCrawl baiduCrawl = new BaiduCrawl();
-        List<ExcelData> excelData = baiduCrawl.getBaiduNews("瑞金证券");
-        ExcelUtils.createExcel();
-        HashMap<String,List<ExcelData>> params = new HashMap<>();
-        params.put("百度",excelData);
-        ExcelUtils.insertData(params);
-
-        excelData.forEach(o -> {
-            System.out.println(o.toString());
-        });
-        System.out.println(excelData.size());
-//        getHtml("http://gdgp.chinaxinge.com/oicnvev/");
-    }
+//    public static void main(String[] args) throws URISyntaxException {
+//        BaiduCrawl baiduCrawl = new BaiduCrawl();
+//        List<ExcelData> excelData = baiduCrawl.getBaiduNews("瑞金证券");
+//        ExcelUtils.createExcel();
+//        HashMap<String,List<ExcelData>> params = new HashMap<>();
+//        params.put("百度",excelData);
+//        ExcelUtils.insertData(params);
+//
+//        excelData.forEach(o -> {
+//            System.out.println(o.toString());
+//        });
+//        System.out.println(excelData.size());
+////        getHtml("http://www.globalcfg.com/wenda/detail-2847767.html");
+//    }
 
     private static List<ExcelData> parseHtml(String html, String keyWord){
 
@@ -291,7 +295,7 @@ public class BaiduCrawl extends BaseCrawl {
             e.printStackTrace();
         }
         httpGet.setURI(uri);
-        String html = getRespJSONByRequest(httpGet);
+        String html = HttpRequestUtils.httpGet(uri.toString(),6000);;
         return html;
     }
     private static void saveHtml( String html) {

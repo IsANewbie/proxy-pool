@@ -2,9 +2,7 @@ package com.vtech.newscrawler;
 
 import com.vtech.newscrawler.crawler.BaiduCrawl;
 import com.vtech.newscrawler.crawler.WechatCrawl;
-import com.vtech.newscrawler.entity.excel.ExcelData;
 import com.vtech.newscrawler.service.IProxyIpService;
-import com.vtech.newscrawler.util.ExcelUtils;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -14,8 +12,6 @@ import org.springframework.test.context.junit4.SpringRunner;
 
 import javax.annotation.Resource;
 import java.io.Serializable;
-import java.util.HashMap;
-import java.util.List;
 
 /**
  * Created by chenerzhu on 2018/9/2.
@@ -32,6 +28,10 @@ public class ProxyPoolApplicationTest {
     @Resource
     private BaiduCrawl baiduCrawl;
 
+    @Test
+    public void testRedisExist() {
+        System.out.println(1);
+    }
 //    @Test
 //    public void testRedisExist() {
 //        Set<Serializable> set=redisCacheTemplate.opsForZSet().range(RedisKey.PROXY_IP_KEY,Long.parseLong("1535957777756"),Long.parseLong("1535957777756"));
@@ -91,17 +91,17 @@ public class ProxyPoolApplicationTest {
 //        List<ProxyIp> proxyIpList=proxyIpService.findAllByPage(1,10,5,0.3);
 //        System.out.println(proxyIpList.size());
 //    }
-    @Test
-    public void get(){
-        List<ExcelData> excelData = baiduCrawl.getBaiduNews("瑞金证券");
-        ExcelUtils.createExcel();
-        HashMap<String,List<ExcelData>> params = new HashMap<>();
-        params.put("百度",excelData);
-        ExcelUtils.insertData(params);
-
-        excelData.forEach(o -> {
-            System.out.println(o.toString());
-        });
-        System.out.println(excelData.size());
-    }
+//    @Test
+//    public void get(){
+//        List<ExcelData> excelData = baiduCrawl.getBaiduNews("瑞金证券");
+//        ExcelUtils.createExcel();
+//        HashMap<String,List<ExcelData>> params = new HashMap<>();
+//        params.put("百度",excelData);
+//        ExcelUtils.insertData(params);
+//
+//        excelData.forEach(o -> {
+//            System.out.println(o.toString());
+//        });
+//        System.out.println(excelData.size());
+//    }
 }

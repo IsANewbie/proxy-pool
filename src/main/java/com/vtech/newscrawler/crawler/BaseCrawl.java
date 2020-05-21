@@ -1,6 +1,5 @@
 package com.vtech.newscrawler.crawler;
 
-import com.vtech.newscrawler.util.WebClientDevWrapper;
 import org.apache.http.HttpEntity;
 import org.apache.http.HttpStatus;
 import org.apache.http.client.ClientProtocolException;
@@ -8,7 +7,9 @@ import org.apache.http.client.methods.CloseableHttpResponse;
 import org.apache.http.client.methods.HttpGet;
 import org.apache.http.client.utils.HttpClientUtils;
 import org.apache.http.conn.HttpHostConnectException;
-import org.apache.http.conn.ssl.*;
+import org.apache.http.conn.ssl.NoopHostnameVerifier;
+import org.apache.http.conn.ssl.SSLConnectionSocketFactory;
+import org.apache.http.conn.ssl.TrustStrategy;
 import org.apache.http.impl.client.CloseableHttpClient;
 import org.apache.http.impl.client.HttpClients;
 import org.apache.http.ssl.SSLContextBuilder;
@@ -31,6 +32,7 @@ public class BaseCrawl {
 //    @Resource
 //    IProxyIpRedisService proxyIpRedisService;
     public static String getRespJSONByRequest(HttpGet request){
+
         String result = null;
         //1.生成httpclient，相当于该打开一个浏览器
         CloseableHttpClient httpClient = HttpClients.custom().setSSLSocketFactory(createIgnoreVerifySSL()).build();
