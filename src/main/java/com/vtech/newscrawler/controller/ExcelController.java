@@ -38,7 +38,7 @@ public class ExcelController {
     private SinaService sinaService;
 
     @RequestMapping(value = "/search")
-    public String search(@RequestParam("keyword") String keyword, Model model) throws MessagingException {
+    public String search(@RequestParam("keyword") String keyword, @RequestParam("email") String email, Model model) throws MessagingException {
         List<ExcelData> baiduNews = baiduNewsSeervice.getExcelData(keyword);
         List<ExcelData> wechatNews = weChatService.getExcelData(keyword);
         List<ExcelData> sinaNews = sinaService.getSinaNews(keyword);
@@ -47,7 +47,7 @@ public class ExcelController {
         map.put("微信公众号",wechatNews);
         map.put("新浪财经",sinaNews);
         ExcelUtils.insertData(map);
-        emailService.sendAttachment(keyword);
+        emailService.sendAttachment(keyword, email);
         model.addAttribute("msg","生成Excel成功,已发送至您的邮箱,注意查收");
         return "search";
     }

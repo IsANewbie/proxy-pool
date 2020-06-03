@@ -22,6 +22,7 @@ public class ProxyPoolApplication extends SpringBootServletInitializer {
 
 	public static void main(String[] args) {
 		System.out.println();
+		System.setProperty("mail.mime.splitlongparameters","false");
 		SpringApplication.run(ProxyPoolApplication.class, args);
 	}
 }

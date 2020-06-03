@@ -15,6 +15,8 @@ import org.springframework.stereotype.Service;
 import javax.mail.MessagingException;
 import javax.mail.internet.MimeMessage;
 import java.io.File;
+import java.io.UnsupportedEncodingException;
+import java.net.URLEncoder;
 import java.util.Date;
 
 /**
@@ -53,7 +55,7 @@ public class SendEmailService {
      * @return
      * @throws
      */
-    public String sendAttachment(String keyword) throws MessagingException, MessagingException {
+    public String sendAttachment(String keyword, String resvicer) throws MessagingException, MessagingException {
         MimeMessage message = jms.createMimeMessage();
         MimeMessageHelper helper = new MimeMessageHelper(message,true);
         String filePath = ExcelUtils.NEW;
@@ -61,7 +63,7 @@ public class SendEmailService {
         //发送方
         helper.setFrom(SENDER);
         //接收方
-        helper.setTo(RESVICER);
+        helper.setTo(resvicer);
         //邮件主题
         helper.setSubject(content);
         //邮件内容
@@ -78,8 +80,15 @@ public class SendEmailService {
     }
 
     public static void main(String[] args) {
-        String keyword = "瑞金证券";
-        String content = VeDate.dateToStrLong(new Date())+ "关键词"+keyword+"舆情信息";
-        System.out.println(content);
+//        String keyword = "瑞金证券";
+//        String content = VeDate.dateToStrLong(new Date())+ "关键词"+keyword+"舆情信息";
+//        System.out.println(content);
+        String s = "http://money.163.com/13/0515/08/8UTDN35700253B0H.html#from=relevant#xwwzy_35_bottomnewskwd";
+        try {
+            s = URLEncoder.encode(s, "UTF-8");
+        } catch (UnsupportedEncodingException e) {
+            e.printStackTrace();
+        }
+        System.out.println(s);
     }
 }

@@ -4,7 +4,9 @@ import com.alibaba.fastjson.JSON;
 import com.vtech.newscrawler.entity.baidu.News;
 import com.vtech.newscrawler.entity.baidu.Root;
 import com.vtech.newscrawler.entity.excel.ExcelData;
+import com.vtech.newscrawler.util.ExcelUtils;
 import com.vtech.newscrawler.util.HttpRequestUtils;
+import com.vtech.newscrawler.util.URlPrase;
 import com.vtech.newscrawler.util.UicodeBackslashU;
 import org.apache.commons.lang.StringUtils;
 import org.apache.http.client.config.RequestConfig;
@@ -22,6 +24,7 @@ import java.io.*;
 import java.net.ConnectException;
 import java.net.URI;
 import java.net.URISyntaxException;
+import java.net.URLEncoder;
 import java.util.*;
 import java.util.stream.Collectors;
 
@@ -91,7 +94,7 @@ public class BaiduCrawl extends BaseCrawl {
                 }
                 uri = builder.build();
                 request.setURI(uri);
-                String html = HttpRequestUtils.httpGet(uri.toString(),6000);
+                String html = HttpRequestUtils.httpGet(uri.toString(),3000);
                 html = UicodeBackslashU.unicodeToCn(html);
                 Root root = JSON.parseObject(html,Root.class);
                 flag = root.getData().isHasmore();
@@ -164,20 +167,24 @@ public class BaiduCrawl extends BaseCrawl {
         return news;
     }
 
-//    public static void main(String[] args) throws URISyntaxException {
-//        BaiduCrawl baiduCrawl = new BaiduCrawl();
-//        List<ExcelData> excelData = baiduCrawl.getBaiduNews("瑞金证券");
+    public static void main(String[] args) throws URISyntaxException {
+        BaiduCrawl baiduCrawl = new BaiduCrawl();
+        List<ExcelData> excelData = baiduCrawl.getBaiduNews("瑞金证券");
 //        ExcelUtils.createExcel();
 //        HashMap<String,List<ExcelData>> params = new HashMap<>();
 //        params.put("百度",excelData);
 //        ExcelUtils.insertData(params);
-//
-//        excelData.forEach(o -> {
-//            System.out.println(o.toString());
-//        });
-//        System.out.println(excelData.size());
-////        getHtml("http://www.globalcfg.com/wenda/detail-2847767.html");
-//    }
+
+        excelData.forEach(o -> {
+            System.out.println(o.toString());
+        });
+//        String s = "http://money.163.com/13/0515/08/8UTDN35700253B0H.html#from=relevant#xwwzy_35_bottomnewskwd";
+////        s = URlPrase.getEncodeURI(s);
+//        getHtml(s);
+//        System.out.println(11111111);
+        System.out.println(excelData.size());
+//        getHtml("http://www.globalcfg.com/wenda/detail-2847767.html");
+    }
 
     private static List<ExcelData> parseHtml(String html, String keyWord){
 
@@ -207,8 +214,8 @@ public class BaiduCrawl extends BaseCrawl {
                         ExcelData excelData = new ExcelData();
                         String TempHtml = getHtml(url);
                         boolean canAdd = true;
-                        if(!TempHtml.equals("404")){
-                            canAdd = TempHtml.contains(keyWord) && !TempHtml.equals("404");
+                        if(!TempHtml.contains("404") && StringUtils.isNotBlank(TempHtml)){
+                            canAdd = TempHtml.contains(keyWord) && !TempHtml.contains("404");
                             canAdd = canAdd && !title.contains("【");
                             Document document = Jsoup.parse(TempHtml);
                             Elements titleEle =  document.getElementsByTag("title");
@@ -265,16 +272,17 @@ public class BaiduCrawl extends BaseCrawl {
     }
     public static String getRealUrlFromBaiduUrl(String url) {
         Connection.Response res = null;
+        String realUrl = "";
         int itimeout = 60000;
         try {
             res = Jsoup.connect(url).timeout(itimeout).method(Connection.Method.GET).followRedirects(false).execute();
-            return res.header("Location");
+            realUrl = res.header("Location");
         } catch (ConnectException e){
             e.getMessage();
         } catch (IOException e) {
             e.printStackTrace();
         }
-        return "";
+        return realUrl;
     }
     private static String getBaiduSearch() throws URISyntaxException {
         BaiduCrawl baiduCrawl = new BaiduCrawl();
@@ -286,16 +294,17 @@ public class BaiduCrawl extends BaseCrawl {
     }
     private static String getHtml(String url){
         HttpGet httpGet = new HttpGet();
+        String html = "";
         httpGet.setHeader("User-Agent", "Mozilla/5.0 (Windows NT 10.0; WOW64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/81.0.4044.122 Safari/537.36");
-
         URI uri = null;
         try {
             uri = new URI(url);
+            httpGet.setURI(uri);
+            html = HttpRequestUtils.httpGet(uri.toString(),3000);;
         } catch (URISyntaxException e) {
             e.printStackTrace();
         }
-        httpGet.setURI(uri);
-        String html = HttpRequestUtils.httpGet(uri.toString(),6000);;
+
         return html;
     }
     private static void saveHtml( String html) {

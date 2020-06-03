@@ -47,7 +47,7 @@ public class SinaCrawl extends BaseCrawl {
 
     public List<ExcelData> getSinaNews(String keywords){
         List<ExcelData> news = new ArrayList<>();
-        int pn =0;
+        int pn =1;
         init();
         param.put("q",keywords);
         boolean flag = true;
@@ -112,7 +112,8 @@ public class SinaCrawl extends BaseCrawl {
     }
 
 //    public static void main(String[] args) {
-//        getBaiduNews("贵州茅台").forEach(o ->{
+//        SinaCrawl sinaCrawl = new SinaCrawl();
+//        sinaCrawl.getSinaNews("瑞金证券").forEach(o ->{
 //            System.out.println(o.toString());
 //        });
 //    }
